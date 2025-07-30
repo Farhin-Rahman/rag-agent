@@ -58,7 +58,7 @@ class CustomGroq(LLM):
 # ===============================================================
 
 # Set your Groq API key from Streamlit secrets
-os.environ["GROQ_API_KEY"] = st.secrets.get("groq_key", "")
+os.environ["GROQ_API_KEY"] = os.environ.get("GROQ_KEY", "")
 
 # Use our custom Groq class as the builder LLM
 BUILDER_LLM = CustomGroq(
