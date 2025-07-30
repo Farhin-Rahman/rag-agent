@@ -1,21 +1,16 @@
-"""Streamlit page showing builder config."""
 import streamlit as st
-
-from core.param_cache import (
-    RAGParams,
-)
-from core.agent_builder.loader import (
-    RAGAgentBuilder,
-    AgentCacheRegistry,
-)
+from core.param_cache import RAGParams
+from core.agent_builder.loader import RAGAgentBuilder, AgentCacheRegistry
 from st_utils import update_selected_agent_with_id, get_current_state, add_sidebar
 from typing import cast
-
+import os
 
 ####################
 #### STREAMLIT #####
 ####################
 
+# Ensure the Groq API Key is securely stored and accessed from Streamlit secrets
+os.environ["GROQ_API_KEY"] = st.secrets.groq_key  # Securely fetch the API key from Streamlit secrets
 
 def update_agent() -> None:
     """Update agent."""
@@ -72,6 +67,7 @@ st.set_page_config(
 )
 st.title("RAG Pipeline Config")
 
+# Ensure the current state and sidebar are updated properly
 current_state = get_current_state()
 add_sidebar()
 

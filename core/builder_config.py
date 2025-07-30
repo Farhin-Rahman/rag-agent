@@ -8,7 +8,9 @@ import os
 # Make sure you've set up Groq API to interact with Llama and Mistral models
 
 from groq_llm import Groq  # Example import, change this depending on Groq's API for Llama and Mistral
-os.environ["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"] = st.secrets.groq_key  # Use the Groq API key from Streamlit secrets
+
+# Securely fetch the API key from Streamlit secrets
+os.environ["GROQ_API_KEY"] = st.secrets.groq_key  # Get the key securely from Streamlit secrets
 
 # Load Groq LLM (Mistral or Llama can be set here)
 BUILDER_LLM = Groq(model="llama-or-mistral")  # Specify which model you want to use here
