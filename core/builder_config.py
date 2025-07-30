@@ -1,20 +1,66 @@
 import streamlit as st
 import os
+from typing import Any, Generator
+from llama_index.llms.base import LLM, CompletionResponse
+from groq import Groq as GroqClient
 
-# Define BUILDER_LLM
-# Uncomment the LLM you want to use to construct the meta agent
+# ===============================================================
+# C U S T O M   L L M   W R A P P E R   F O R   G R O Q
+# This class is built specifically for the LlamaIndex v0.9.x API
+# It REMOVES all the incorrect decorators and modern imports.
+# ===============================================================
 
-# Groq API (Replace with your Groq API functionality)
-# Make sure you've set up Groq API to interact with Llama and Mistral models
+class CustomGroq(LLM):
+    model: str = "mixtral-8x7b-32768"
+    api_key: str
 
-from groq_llm import Groq  # Example import, change this depending on Groq's API for Llama and Mistral
+    @property
+    def metadata(self) -> dict:
+        """LLM metadata."""
+        return {"model_name": self.model}
 
-# Securely fetch the API key from Streamlit secrets
-os.environ["GROQ_API_KEY"] = st.secrets.groq_key  # Get the key securely from Streamlit secrets
+    def complete(self, prompt: str, **kwargs: Any) -> CompletionResponse:
+        """Completion endpoint."""
+        client = GroqClient(api_key=self.api_key)
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model=self.model,
+        )
+        response_text = chat_completion.choices[0].message.content
+        return CompletionResponse(text=response_text)
 
-# Load Groq LLM (Mistral or Llama can be set here)
-BUILDER_LLM = Groq(model="llama-or-mistral")  # Specify which model you want to use here
+    def stream_complete(
+        self, prompt: str, **kwargs: Any
+    ) -> Generator[CompletionResponse, None, None]:
+        """Streaming completion endpoint."""
+        client = GroqClient(api_key=self.api_key)
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model=self.model,
+        )
+        response_text = chat_completion.choices[0].message.content
 
-# Optionally, you can switch models based on configurations, similar to how you would switch OpenAI models.
-# For example:
-# BUILDER_LLM = Groq(model="mistral")
+        # Yield a single CompletionResponse inside a generator
+        yield CompletionResponse(text=response_text)
+
+# ===============================================================
+# I N S T A N T I A T E   T H E   L L M
+# ===============================================================
+
+# Set your Groq API key from Streamlit secrets
+os.environ["GROQ_API_KEY"] = st.secrets.get("groq_key", "")
+
+# Use our custom Groq class as the builder LLM
+BUILDER_LLM = CustomGroq(
+    model="mixtral-8x7b-32768", api_key=os.environ.get("GROQ_API_KEY")
+)
