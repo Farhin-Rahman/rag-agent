@@ -1,20 +1,18 @@
-"""Configuration."""
 import streamlit as st
 import os
 
-### DEFINE BUILDER_LLM #####
-## Uncomment the LLM you want to use to construct the meta agent
+# Define BUILDER_LLM
+# Uncomment the LLM you want to use to construct the meta agent
 
-## OpenAI
-from llama_index.llms import OpenAI
+# Groq API (Replace with your Groq API functionality)
+# Make sure you've set up Groq API to interact with Llama and Mistral models
 
-# set OpenAI Key - use Streamlit secrets
-os.environ["OPENAI_API_KEY"] = st.secrets.openai_key
-# load LLM
-BUILDER_LLM = OpenAI(model="gpt-4-1106-preview")
+from groq_llm import Groq  # Example import, change this depending on Groq's API for Llama and Mistral
+os.environ["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"] = st.secrets.groq_key  # Use the Groq API key from Streamlit secrets
 
-# # Anthropic (make sure you `pip install anthropic`)
-# from llama_index.llms import Anthropic
-# # set Anthropic key
-# os.environ["ANTHROPIC_API_KEY"] = st.secrets.anthropic_key
-# BUILDER_LLM = Anthropic()
+# Load Groq LLM (Mistral or Llama can be set here)
+BUILDER_LLM = Groq(model="llama-or-mistral")  # Specify which model you want to use here
+
+# Optionally, you can switch models based on configurations, similar to how you would switch OpenAI models.
+# For example:
+# BUILDER_LLM = Groq(model="mistral")
